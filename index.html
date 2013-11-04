@@ -54,7 +54,7 @@
       <span class="muted" ng-if="query"><small>Results: {{(data.messages | filter:query).length}}</small></span>
     </form>
     <ul class="thumbnails">
-      <li class="span4" ng-repeat="message in data.messages | filter:query  | orderBy:orderProp" on>
+      <li class="span4" ng-repeat="message in data.messages | filter:query  | orderBy:orderProp">
         <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> {{message.poster}}<span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a'">has notice</span>
           <span class="label label-info pull-right" style="position:relative;" ng-if="message.data.tracking.year != 'n/a' && message.data.received.year == 'n/a'">has tracking id</span>
           <span class="label label-success pull-right" style="position:relative;" ng-if="message.data.received.year != 'n/a'">has Makibox</span>
