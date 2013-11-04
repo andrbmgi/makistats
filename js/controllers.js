@@ -53,10 +53,10 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
     if ($scope.data) {
       angular.forEach($scope.data.messages, function(message, key) {
           if (message.data === undefined) {  } else {
-            message.orderDate = message.data.orderDate.year*10000 + message.data.orderDate.month*100 + message.data.orderDate.day;
-            message.noticeDate = message.data.notice.year*10000 + message.data.notice.month*100 + message.data.notice.day;
-            message.trackingDate = message.data.tracking.year*10000 + message.data.tracking.month*100 + message.data.tracking.day;
-            message.receivedDate = message.data.received.year*10000 + message.data.received.month*100 + message.data.received.day;
+            message.orderDate = parseInt(message.data.orderDate.year)*10000 + parseInt(message.data.orderDate.month)*100 + parseInt(message.data.orderDate.day);
+            message.noticeDate = parseInt(message.data.notice.year)*10000 + parseInt(message.data.notice.month)*100 + parseInt(message.data.notice.day);
+            message.trackingDate = parseInt(message.data.tracking.year)*10000 + parseInt(message.data.tracking.month)*100 + parseInt(message.data.tracking.day);
+            message.receivedDate = parseInt(message.data.received.year)*10000 + parseInt(message.data.received.month)*100 + parseInt(message.data.received.day);
             if (message.data[scope].year != 'n/a') {
               //messages.splice(key, 1);
               //console.log(message.data.notice);
