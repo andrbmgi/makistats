@@ -17,7 +17,20 @@ use String::Util 'trim';
 use DateTime;
 use Encode;
 use JSON;
+# use Test::Deep;
 #use LWP::Simple "get";
+
+my $path = '/var/www/web85/html/makiscrape/';
+# my $path = ''; # local
+my $changes = 0;
+
+sub ifDateAvail {
+    if ( $_[0]->{year} ne 'n/a') {
+      return $_[0]->{year} . '-' . $_[0]->{month} . '-' . $_[0]->{day};
+    } else {
+      return '';
+    }
+ };
 
 sub getDate {
 	my $month = -1;
@@ -60,16 +73,17 @@ sub getDate {
 
 
 
-
+# get old data to check for changes / calculate lastEdited date
 my $old_data;
 local $/;
-open (MYFILE, '</var/www/web85/html/makiscrape/makiscrape.json');
+open (MYFILE, '<'.$path.'makiscrape_full.json');
 my $encoding = 'cp932';
 my $unicode_json_text = decode( $encoding, <MYFILE> ); # UNICODE
 close (MYFILE);
 if ( defined $unicode_json_text && $unicode_json_text ne '' ) {
 	$old_data = from_json($unicode_json_text);
 };
+# print Dumper $old_data;
 
 
 #open (MYFILE, '>makiscrape.json');
@@ -115,21 +129,42 @@ for my $i ( 0 .. $#{$res->{links}} ) {
 	$data .= $response->decoded_content;
 };
 $res = $extractData->scrape($data);
+my $server_res = $extractData->scrape($data);
 
+# prepare csv output
+@header = ('Name', 'Type', 'Ramen', 'Color', 'Country', 'Shipping', 'Order', 'Notice', 'Tracking', 'Received', 'LastEdited', 'Link', 'OriginalPost');
+my $csv_output = join(';', @header);
+$csv_output .= "\r\n";
+
+# add date for reference
 my $dt = DateTime->now();
 $res->{scraped} = $dt->ymd('-') . ' ' . $dt->hms(':');
+$server_res->{scraped} = $res->{scraped};
+
+# lead post
+delete $res->{messages}[0]->{content};
+delete $server_res->{messages}[0]->{postDate};
 
 for my $i ( 1 .. $#{$res->{messages}} ) {
 # print $res->{messages}[$i]->{content} eq $old_data->{messages}[$i]->{content};
 	# print Dumper $old_data;
 	# print Dumper $unicode_json_text;
+
+	# test for changes
+	if ( $res->{messages}[$i]->{content} ne $old_data->{messages}[$i]->{content} ) {
+		$changes = 1;
+	};
+
 	$dt = DateTime->now(); # strange bug otherwise with changing dates
 
+	# try to find out if the content was altered and set new lastEdited date
 	if ( defined $old_data->{messages}[$i]->{lastEdited} && $old_data->{messages}[$i]->{lastEdited} ne '' ) {
 		if ( $res->{messages}[$i]->{content} eq $old_data->{messages}[$i]->{content} ) {
 			$res->{messages}[$i]->{lastEdited} = $old_data->{messages}[$i]->{lastEdited};
+			$server_res->{messages}[$i]->{lastEdited} = $res->{messages}[$i]->{lastEdited};
 		} else {
 			$res->{messages}[$i]->{lastEdited} = $dt->year() . '-' . $dt->month() . '-' . $dt->day();
+			$server_res->{messages}[$i]->{lastEdited} = $res->{messages}[$i]->{lastEdited};
 		};
 	} else {
 		my $postDate = $res->{messages}[$i]->{postDate};
@@ -145,8 +180,10 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 			$postDate = substr($postDate, 0, index($postDate, 'T'));
 		}
 		$res->{messages}[$i]->{lastEdited} = $postDate;
+		$server_res->{messages}[$i]->{lastEdited} = $res->{messages}[$i]->{lastEdited};
 	};
 	delete $res->{messages}[$i]->{postDate};
+	delete $server_res->{messages}[$i]->{postDate};
 # die;
 	my $stringOrig = $res->{messages}[$i]->{content};
 	my $string = lc( $res->{messages}[$i]->{content} );
@@ -561,7 +598,29 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	# $res->{messages}[$i]->{data}->{lastEdited} = $asOf;
 	# delete $res->{messages}[$i]->{lastEdited};
 
+	# build csv entry
+	my $orderD = ifDateAvail( $res->{messages}[$i]->{data}->{orderDate} );
+	my $noticeD = ifDateAvail( $res->{messages}[$i]->{data}->{notice} );
+    my $trackingD = ifDateAvail( $res->{messages}[$i]->{data}->{tracking} );
+    my $receivedD = ifDateAvail( $res->{messages}[$i]->{data}->{received} );
+    my @csv_message = (	$res->{messages}[$i]->{poster},
+	    				$res->{messages}[$i]->{data}->{type},
+	    				$res->{messages}[$i]->{data}->{ramen},
+	    				$res->{messages}[$i]->{data}->{color},
+	    				$res->{messages}[$i]->{data}->{country},
+	    				$res->{messages}[$i]->{data}->{shipping},
+	    				$orderD,
+	    				$noticeD,
+	    				$trackingD,
+	    				$receivedD,
+	    				$res->{messages}[$i]->{data}->{lastEdited},
+	    				$res->{messages}[$i]->{link},
+	    				$res->{messages}[$i]->{content}
+	    				);
+    $csv_output .= join(';', @csv_message);
+	$csv_output .= "\r\n";
 
+	delete $res->{messages}[$i]->{content};
 };
 
 
@@ -569,21 +628,29 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 # print "Access-Control-Allow-Origin: *\n";
 # print "Content-Type: application/json\n\n";
 
-my $json_text = encode_json($res);
-open (MYFILE, '>/var/www/web85/html/makiscrape/makiscrape.json');
+# output for IdleBot
+if ( $changes == 0 ) {
+	print 'No changes since last scrape.'
+} else {
+	print 'Found new data!'
+};
+# print $changes;
+
+# writing server JSON (to later compare the content)
+my $json_text = encode_json($server_res);
+open (MYFILE, '>'.$path.'makiscrape_full.json');
 print MYFILE $json_text;
 close (MYFILE);
 
-@header = ('Name', 'Type', 'Ramen', 'Color', 'Country', 'Shipping', 'Order', 'Notice', 'Tracking', 'Received', 'LastEdited', 'Link', 'OriginalPost');
-my $csv_output = join(';', @header);
-$csv_output .= "\r\n";
+# writing client JSON
+$json_text = encode_json($res);
+open (MYFILE, '>'.$path.'makiscrape.json');
+print MYFILE $json_text;
+close (MYFILE);
 
-#print "all done."
-
-# print "\n\n\n\n";
-# print $response->content;
-#print Dumper $res;
-#print Dumper $data;
-#print "\n\n\n\n";
-
-
+# writing CSV
+# open (MYFILE, '>/var/www/web85/html/makiscrape/makiscrape_' . $dt->ymd('-') . '_' . $dt->hms('') . '.csv');
+open (MYFILE, '>'.$path.'makiscrape.csv');
+# open (MYFILE, '>makiscrape.csv');
+print MYFILE $csv_output;
+close (MYFILE);
