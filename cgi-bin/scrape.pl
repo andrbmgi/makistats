@@ -47,16 +47,16 @@ sub getDate {
 			$month = 11;
 		} elsif ( index($_[0], 'dec') > -1 ) {
 			$month = 12;
-		}
+		};
 	} else {
 		# assume int
 		$month = int($_[0]);
-	}
+	};
 	if ( ($month < 1) or ($month > 12) ) { # sanity check
 		$month = -1;
-	}
+	};
 	return $month;
-}
+};
 
 
 
@@ -69,7 +69,7 @@ my $unicode_json_text = decode( $encoding, <MYFILE> ); # UNICODE
 close (MYFILE);
 if ( defined $unicode_json_text && $unicode_json_text ne '' ) {
 	$old_data = from_json($unicode_json_text);
-}
+};
 
 
 #open (MYFILE, '>makiscrape.json');
