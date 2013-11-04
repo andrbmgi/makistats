@@ -53,10 +53,22 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
     if ($scope.data) {
       angular.forEach($scope.data.messages, function(message, key) {
           if (message.data === undefined) {  } else {
-            message.orderDate = parseInt(message.data.orderDate.year)*10000 + parseInt(message.data.orderDate.month)*100 + parseInt(message.data.orderDate.day);
-            message.noticeDate = parseInt(message.data.notice.year)*10000 + parseInt(message.data.notice.month)*100 + parseInt(message.data.notice.day);
-            message.trackingDate = parseInt(message.data.tracking.year)*10000 + parseInt(message.data.tracking.month)*100 + parseInt(message.data.tracking.day);
-            message.receivedDate = parseInt(message.data.received.year)*10000 + parseInt(message.data.received.month)*100 + parseInt(message.data.received.day);
+            message.orderDate = 99990000;
+            message.noticeDate = 99990000;
+            message.trackingDate = 99990000;
+            message.receivedDate = 99990000;
+            if (message.data.orderDate.year != 'n/a') {
+              message.orderDate = parseInt(message.data.orderDate.year)*10000 + parseInt(message.data.orderDate.month)*100 + parseInt(message.data.orderDate.day);  
+            };
+            if (message.data.notice.year != 'n/a') {
+              message.noticeDate = parseInt(message.data.notice.year)*10000 + parseInt(message.data.notice.month)*100 + parseInt(message.data.notice.day);  
+            };
+            if (message.data.tracking.year != 'n/a') {
+              message.trackingDate = parseInt(message.data.tracking.year)*10000 + parseInt(message.data.tracking.month)*100 + parseInt(message.data.tracking.day);
+            };
+            if (message.data.received.year != 'n/a') {
+              message.receivedDate = parseInt(message.data.received.year)*10000 + parseInt(message.data.received.month)*100 + parseInt(message.data.received.day);
+            };
             if (message.data[scope].year != 'n/a') {
               //messages.splice(key, 1);
               //console.log(message.data.notice);
