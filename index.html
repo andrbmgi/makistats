@@ -28,7 +28,7 @@
   <div class="container-fluid">
     <p>
       <h1>MakiStats <small>last scraped (UTC): {{data.scraped}}</small></h1>
-      <button class="btn btn-primary btn-mini" type="button" ng-csv="getCsvArray()" csv-header="getCsvHeader()" filename="makistats_{{data.scraped}}.csv">Export CSV</button>
+      <a class="btn btn-primary btn-mini" href="makiscrape.csv?{{timetag}}">Export CSV</a>
     </p>
 
     <p>

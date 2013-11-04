@@ -29,7 +29,9 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
   }
 
 	$scope.update = function() {
-    $http.get('http://boredrich.de/makiscrape/fetchMakistats.pl').
+    //$http.get('http://boredrich.de/makiscrape/fetchMakistats.pl').
+    $scope.timetag = new Date().getTime();
+    $http.get('http://boredrich.de/makiscrape/makiscrape.json?'+$scope.timetag).
       success(function(data, status, headers, config) {
         addSuccessMessage(status, "JSON successfully loaded.");
         $scope.status = status;
