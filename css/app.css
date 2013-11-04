@@ -1,0 +1,82 @@
+/* app css stylesheet */
+
+body {
+	padding-top: 20px;
+}
+.alert-container {
+	position: fixed;
+	right: 20px;
+}
+*.alert {
+	margin: 5px !important;
+}
+.spinner {
+	display: inline-block;
+	opacity: 0;
+	width: 0;
+
+	-webkit-transition: opacity 0.25s, width 0.25s;
+	-moz-transition: opacity 0.25s, width 0.25s;
+	-o-transition: opacity 0.25s, width 0.25s;
+	transition: opacity 0.25s, width 0.25s;
+}
+.has-spinner.active {
+	cursor: progress;
+}
+.has-spinner.active .spinner {
+	opacity: 1;
+	width: auto; /* This doesn't work, just fix for unkown width elements */
+}
+.has-spinner.btn.active .spinner {
+	width: 16px;
+}
+.icon-spin {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	line-height: 14px;
+	vertical-align: text-top;
+	background-image: url("img/spinner.gif");
+	background-position: 14px 14px;
+	background-repeat: no-repeat;
+}
+.entry {
+	border: 1px solid #dddddd;
+	background-color: #f9f9f9;
+	padding: 8px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.detail {
+	padding-top: 15px;
+	padding-left: 15px;
+}
+.btn-file {
+	position: relative;
+	overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 999px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+}
+.message {
+	position: relative;
+	margin: 15px 0;
+	padding: 39px 19px 14px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}

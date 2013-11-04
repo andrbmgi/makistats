@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+<head>
+  <meta charset="utf-8">
+  <title>MakiStats</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <script src="lib/angular/angular.js"></script>
+  <script src="lib/angular/angular-sanitize.js"></script>
+  <script src="lib/angular/modules/ng-csv.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/controllers.js"></script>
+</head>
+<body ng-controller="mainCtrl">
+
+  <div class="alert-container">
+    <div class="alert alert-error" ng-hide="hide" ng-repeat="error in errorList">
+      <button type="button" class="close" data-dismiss="alert" ng-click="hide = true">&times;</button>
+      {{error.message}} (HTTP status code: {{error.status}})
+    </div>
+
+    <div class="alert alert-success" ng-hide="hide" ng-repeat="success in successList">
+      <button type="button" class="close" data-dismiss="alert" ng-click="hide = true">&times;</button>
+      {{success.message}}
+    </div>
+  </div> 
+
+  <div class="container-fluid">
+    <p>
+      <h1>MakiStats <small>last scraped (UTC): {{data.scraped}}</small></h1>
+      <button class="btn btn-primary btn-mini" type="button" ng-csv="getCsvArray()" csv-header="getCsvHeader()" filename="makistats_{{data.scraped}}.csv">Export CSV</button>
+    </p>
+
+    <p>
+    Datapoints: <span class="badge badge-important">{{data.messages.length}}</span><br>
+    Number of Notices: <span class="badge badge-warning" ng-bind="getCount('notice')-getCount('tracking')"></span><br>
+    Number of Trackable Packages: <span class="badge badge-info" ng-bind="getCount('tracking')-getCount('received')"></span><br>
+    Number of Happy Makers: <span class="badge badge-success" ng-bind="getCount('received')"></span>
+    </p>
+    <form class="form-search">
+      <div class="input-prepend">
+        <span class="add-on">Search</span><input type="text" class="span2 search-query" ng-model="query">
+      </div>
+      <div class="input-prepend" ng-init="orderProp = 'orderDate'">
+        <span class="add-on"> Sort by</span><select class='search-query span2' ng-model="orderProp">
+          <option value="">Post Date</option>
+          <option value="poster">Alphabetical</option>
+          <option value="orderDate">Order Date</option>
+          <option value="noticeDate">Notice Date</option>
+          <option value="trackingDate">Tracking Date</option>
+          <option value="receivedDate">Received Date</option>
+        </select>
+      </div><br>
+      <span class="muted" ng-if="query"><small>Results: {{(data.messages | filter:query).length}}</small></span>
+    </form>
+    <ul class="thumbnails">
+      <li class="span4" ng-repeat="message in data.messages | filter:query  | orderBy:orderProp" on>
+        <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> {{message.poster}}<span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a'">has notice</span>
+          <span class="label label-info pull-right" style="position:relative;" ng-if="message.data.tracking.year != 'n/a' && message.data.received.year == 'n/a'">has tracking id</span>
+          <span class="label label-success pull-right" style="position:relative;" ng-if="message.data.received.year != 'n/a'">has Makibox</span>
+        </a>
+        <div class="well well-small" ng-click="log(message.content)">
+          
+          <table>
+            <tr>
+              <td class="muted">Makibox Type</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>A6 {{message.data.type}} <span ng-if="message.data.ramen == 1">Ramen Bundle</span> {{message.data.color}}</td>
+            </tr>
+            <tr>
+              <td class="muted">Country</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>{{message.data.country}}</td>
+            </tr>
+            <tr>
+              <td class="muted">Shipping</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>{{message.data.shipping}}</td>
+            </tr>
+            <tr>
+              <td class="muted">Order</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>
+                <span ng-if="message.data.orderDate.year != 'n/a'">{{message.data.orderDate.year}}-{{message.data.orderDate.month}}-{{message.data.orderDate.day}}</span>
+                <span ng-if="message.data.orderDate.year == 'n/a'">-</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">Notice</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>
+                <span ng-if="message.data.notice.year != 'n/a'">{{message.data.notice.year}}-{{message.data.notice.month}}-{{message.data.notice.day}}</span>
+                <span ng-if="message.data.notice.year == 'n/a'">-</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">Tracking</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>
+                <span ng-if="message.data.tracking.year != 'n/a'">{{message.data.tracking.year}}-{{message.data.tracking.month}}-{{message.data.tracking.day}}</span>
+                <span ng-if="message.data.tracking.year == 'n/a'">-</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">Received</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>
+                <span ng-if="message.data.received.year != 'n/a'">{{message.data.received.year}}-{{message.data.received.month}}-{{message.data.received.day}}</span>
+                <span ng-if="message.data.received.year == 'n/a'">-</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">Last Edited</td>
+              <td>&nbsp;&nbsp;</td>
+              <td class="muted">
+                {{message.lastEdited}}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+</body>
+</html>
