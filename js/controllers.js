@@ -2,9 +2,9 @@
 
 /* Controllers */
 app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
-  function tutorialCtrl($scope, $rootScope, $http, $timeout, $q) {
+  function mainCtrl($scope, $rootScope, $http, $timeout, $q) {
 
-
+  $scope.searchMode = 'orderDate';
 
   function addSuccessMessage(HTTPstatus, message) {
     if (!$scope.successList) {
@@ -30,53 +30,64 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
 
   function quickSort(l, r, scope) {
     if (l<r) {
-      var pivot = getPivot(l, r, scope, debug);
-      quickSort(l, pivot-1, scope, debug);
-      quickSort(pivot+1, r, scope, debug);
+      var pivot = getPivot(l, r, scope);
+      quickSort(l, pivot-1, scope);
+      quickSort(pivot+1, r, scope);
     };
   };
 
-  function getPivot(l, r, scope, debug) {
-    if (debug) console.log('getPivot('+l+', '+r+', '+scope+')');
+  function getPivot(l, r, scope) {
     var i = l;
     var j = r-1;
     var pivot = $scope.data.messages[r][scope];
-    if (debug) console.log('Pivot: '+pivot);
     do {
-      // if (debug) console.log($scope.data.messages[i][scope]+' <= '+pivot+' && '+i+' < '+r);
       while ( ($scope.data.messages[i][scope] <= pivot) && (i < r) ) {
         i++;
       };
-      if (debug) console.log($scope.data.messages[i][scope]+' <= '+pivot+' && '+i+' < '+r);
-      if (debug) console.log('Bigger element left at '+i);
-      // if (debug) console.log($scope.data.messages[j][scope]+' >= '+pivot+' && '+j+' > '+l);
       while ( ($scope.data.messages[j][scope] >= pivot) && (j > l) ) { 
         j--;
       };
-      if (debug) console.log($scope.data.messages[j][scope]+' >= '+pivot+' && '+j+' > '+l);
-      if (debug) console.log('Smaller element right at '+j);
       if (i<j) {
-        if (debug) console.log(i+' < '+j);
-        if (debug) console.log('Switch data');
         var temp = $scope.data.messages[i];
         $scope.data.messages[i] = $scope.data.messages[j];
         $scope.data.messages[j] = temp;
-        // $scope.data.messages[i][scope+'Position'] = parseInt(toString(i));
-        // $scope.data.messages[j][scope+'Position'] = parseInt(toString(j));
       };
     } while(i<j);
-    if (debug) console.log('i: '+i+' | j: '+j);
     if ($scope.data.messages[i][scope] > pivot) {
-      if (debug) console.log('Switch pivot to final position i = '+i);
       var temp = $scope.data.messages[i];
       $scope.data.messages[i] = $scope.data.messages[r];
       $scope.data.messages[r] = temp;
-      // $scope.data.messages[i][scope+'Position'] = parseInt(toString(i));
-      // $scope.data.messages[r][scope+'Position'] = parseInt(toString(r));
     };
-    if (debug) console.log('Pivot final at '+i);
-    if (debug) console.log('-------');
     return i;
+  };
+
+  function strcmp(a, b) {
+      a = a.toString(), b = b.toString();
+      for (var i=0,n=Math.max(a.length, b.length); i<n && a.charAt(i) === b.charAt(i); ++i);
+      if (i === n) return 0;
+      return a.charAt(i) > b.charAt(i) ? -1 : 1;
+  }
+
+  function FUUUUUUUUUUUUU(ferk) {
+    // rage level over 9000!!!!!11!!111!1
+    // this method propagates the sorted position because the sorting function somehow couldnt
+    // also its put same day messages in the same spot
+    var pos = 0;
+    var prev = 0;
+    angular.forEach($scope.data.messages, function(message, key) {
+      if (key==0) { 
+        message[ferk+'Position'] = key; 
+        prev = message[ferk];
+      } else {
+        if ( strcmp(message[ferk], prev) == 0 ) {
+          message[ferk+'Position'] = pos; 
+        } else {
+          pos++;
+          message[ferk+'Position'] = pos; 
+        };
+        prev = message[ferk];
+      };
+    });
   };
 
   function sortAll() {
@@ -107,18 +118,14 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
             };
           };
       });
-      quickSort(0, i-1, 'orderDate', false);
-      angular.forEach($scope.data.messages, function(message, key) {
-        message.orderDatePosition = key;
-        console.log(message.orderDate+' '+message.orderDatePosition+' '+key);
-      });
-      quickSort(0, i-1, 'noticeDate', true);
-      angular.forEach($scope.data.messages, function(message, key) {
-        message.noticeDatePosition = key;
-        console.log(message.noticeDate+' '+message.noticeDatePosition+' '+key);
-      });
-      quickSort(0, i-1, 'trackingDate', false);
-      quickSort(0, i-1, 'receivedDate', false);
+      quickSort(0, i-1, 'orderDate');
+      FUUUUUUUUUUUUU('orderDate');
+      quickSort(0, i-1, 'noticeDate');
+      FUUUUUUUUUUUUU('noticeDate');
+      quickSort(0, i-1, 'trackingDate');
+      FUUUUUUUUUUUUU('trackingDate');
+      quickSort(0, i-1, 'receivedDate');
+      FUUUUUUUUUUUUU('receivedDate');
 
   };
 
@@ -215,6 +222,21 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
       });
     };
     return array;
+  };
+
+  $scope.searchFn = function(message) {
+    if ($scope.searchMode == 'orderDate') {
+      return message.orderDatePosition;
+    } else if ($scope.searchMode == 'noticeDate') {
+      return (message.noticeDatePosition*1000 + message.orderDatePosition);
+    } else if ($scope.searchMode == 'trackingDate') {
+      return (message.trackingDatePosition*1000000 + message.noticeDatePosition*1000 + message.orderDatePosition);
+    } else if ($scope.searchMode == 'receivedDate') {
+      return message.receivedDatePosition*1000000000 + message.trackingDatePosition*1000000 + message.noticeDatePosition*1000 + message.orderDatePosition;
+    } else if ($scope.searchMode == 'poster') {
+      return message.poster;
+    };
+    return message.postDate;
   };
 
 }]);
