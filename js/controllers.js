@@ -116,6 +116,9 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
             if (message.data.received.year != 'n/a') {
               message.receivedDate = parseInt(message.data.received.year)*10000 + parseInt(message.data.received.month)*100 + parseInt(message.data.received.day);
             };
+            if ( strcmp(message.data.color, "Stainless Steel") == 0 ) {
+              message.data.color = 'Steel';
+            };
           };
       });
       quickSort(0, i-1, 'orderDate');
