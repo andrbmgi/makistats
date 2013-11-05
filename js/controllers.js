@@ -28,16 +28,111 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
     }, 20000);
   }
 
+  function quickSort(l, r, scope) {
+    if (l<r) {
+      var pivot = getPivot(l, r, scope, debug);
+      quickSort(l, pivot-1, scope, debug);
+      quickSort(pivot+1, r, scope, debug);
+    };
+  };
+
+  function getPivot(l, r, scope, debug) {
+    if (debug) console.log('getPivot('+l+', '+r+', '+scope+')');
+    var i = l;
+    var j = r-1;
+    var pivot = $scope.data.messages[r][scope];
+    if (debug) console.log('Pivot: '+pivot);
+    do {
+      // if (debug) console.log($scope.data.messages[i][scope]+' <= '+pivot+' && '+i+' < '+r);
+      while ( ($scope.data.messages[i][scope] <= pivot) && (i < r) ) {
+        i++;
+      };
+      if (debug) console.log($scope.data.messages[i][scope]+' <= '+pivot+' && '+i+' < '+r);
+      if (debug) console.log('Bigger element left at '+i);
+      // if (debug) console.log($scope.data.messages[j][scope]+' >= '+pivot+' && '+j+' > '+l);
+      while ( ($scope.data.messages[j][scope] >= pivot) && (j > l) ) { 
+        j--;
+      };
+      if (debug) console.log($scope.data.messages[j][scope]+' >= '+pivot+' && '+j+' > '+l);
+      if (debug) console.log('Smaller element right at '+j);
+      if (i<j) {
+        if (debug) console.log(i+' < '+j);
+        if (debug) console.log('Switch data');
+        var temp = $scope.data.messages[i];
+        $scope.data.messages[i] = $scope.data.messages[j];
+        $scope.data.messages[j] = temp;
+        // $scope.data.messages[i][scope+'Position'] = parseInt(toString(i));
+        // $scope.data.messages[j][scope+'Position'] = parseInt(toString(j));
+      };
+    } while(i<j);
+    if (debug) console.log('i: '+i+' | j: '+j);
+    if ($scope.data.messages[i][scope] > pivot) {
+      if (debug) console.log('Switch pivot to final position i = '+i);
+      var temp = $scope.data.messages[i];
+      $scope.data.messages[i] = $scope.data.messages[r];
+      $scope.data.messages[r] = temp;
+      // $scope.data.messages[i][scope+'Position'] = parseInt(toString(i));
+      // $scope.data.messages[r][scope+'Position'] = parseInt(toString(r));
+    };
+    if (debug) console.log('Pivot final at '+i);
+    if (debug) console.log('-------');
+    return i;
+  };
+
+  function sortAll() {
+      var i = 0;
+      angular.forEach($scope.data.messages, function(message, key) {
+          if (message.data === undefined) {  } else {
+            message.orderDate = 99990000;
+            message.noticeDate = 99990000;
+            message.trackingDate = 99990000;
+            message.receivedDate = 99990000;
+            message.orderDatePosition = i;
+            message.noticeDatePosition = i;
+            message.trackingDatePosition = i;
+            message.receivedDatePosition = i;
+            message.postDate = i;
+            i++;
+            if (message.data.orderDate.year != 'n/a') {
+              message.orderDate = parseInt(message.data.orderDate.year)*10000 + parseInt(message.data.orderDate.month)*100 + parseInt(message.data.orderDate.day);  
+            };
+            if (message.data.notice.year != 'n/a') {
+              message.noticeDate = parseInt(message.data.notice.year)*10000 + parseInt(message.data.notice.month)*100 + parseInt(message.data.notice.day);  
+            };
+            if (message.data.tracking.year != 'n/a') {
+              message.trackingDate = parseInt(message.data.tracking.year)*10000 + parseInt(message.data.tracking.month)*100 + parseInt(message.data.tracking.day);
+            };
+            if (message.data.received.year != 'n/a') {
+              message.receivedDate = parseInt(message.data.received.year)*10000 + parseInt(message.data.received.month)*100 + parseInt(message.data.received.day);
+            };
+          };
+      });
+      quickSort(0, i-1, 'orderDate', false);
+      angular.forEach($scope.data.messages, function(message, key) {
+        message.orderDatePosition = key;
+        console.log(message.orderDate+' '+message.orderDatePosition+' '+key);
+      });
+      quickSort(0, i-1, 'noticeDate', true);
+      angular.forEach($scope.data.messages, function(message, key) {
+        message.noticeDatePosition = key;
+        console.log(message.noticeDate+' '+message.noticeDatePosition+' '+key);
+      });
+      quickSort(0, i-1, 'trackingDate', false);
+      quickSort(0, i-1, 'receivedDate', false);
+
+  };
+
 	$scope.update = function() {
     
     $scope.timetag = new Date().getTime();
-    //$http.get('http://boredrich.de/makiscrape/fetchMakistats.pl').
-    $http.get('http://boredrich.de/makiscrape/makiscrape.json?'+$scope.timetag).
+    $http.get('http://boredrich.de/makiscrape/fetchMakistats.pl').
+    //$http.get('http://boredrich.de/makiscrape/makiscrape.json?'+$scope.timetag).
       success(function(data, status, headers, config) {
         addSuccessMessage(status, "JSON successfully loaded.");
         $scope.status = status;
         data.messages.splice(0, 1);
         $scope.data = data;
+        sortAll();
       }).
       error(function(data, status, headers, config) {
         addErrorMessage(status, "An error occured.");
