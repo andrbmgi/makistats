@@ -435,6 +435,9 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	} else {
 		my $posC = index( lc($stringOrig), $country );
 		$country = substr( $stringOrig, $posC, length($country) );
+		$country =~ s/\[//;
+		$country =~ s/\]//;
+		# $country =~ s/([\w']+)/\u\L$1/g; # capitalize first letter of each word
 	}
 	$res->{messages}[$i]->{data}->{country} = $country;
 	$res->{messages}[$i]->{data}->{shipping} = $shipping;
