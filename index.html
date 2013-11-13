@@ -33,6 +33,7 @@
 
     <p>
     Datapoints: <span class="badge badge-important">{{data.messages.length}}</span><br>
+    Number of Cancelled Orders: <span class="badge badge-default" ng-bind="getCount('cancelled')"></span><br>
     Number of Notices: <span class="badge badge-warning" ng-bind="getCount('notice')-getCount('tracking')"></span><br>
     Number of Trackable Packages: <span class="badge badge-info" ng-bind="getCount('tracking')-getCount('received')"></span><br>
     Number of Happy Makers: <span class="badge badge-success" ng-bind="getCount('received')"></span>
@@ -56,12 +57,12 @@
     </form>
     <ul class="thumbnails">
       <li class="span4" ng-repeat="message in data.messages | filter:query | orderBy:searchFn">
-        <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> {{message.poster}}<span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a'">has notice</span>
-          <span class="label label-info pull-right" style="position:relative;" ng-if="message.data.tracking.year != 'n/a' && message.data.received.year == 'n/a'">has tracking id</span>
-          <span class="label label-success pull-right" style="position:relative;" ng-if="message.data.received.year != 'n/a'">has Makibox</span>
+        <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> {{message.poster}}<span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a' && message.data.cancelled.year == 'n/a'">has notice</span>
+          <span class="label label-info pull-right" style="position:relative;" ng-if="message.data.tracking.year != 'n/a' && message.data.received.year == 'n/a' && message.data.cancelled.year == 'n/a'">has tracking id</span>
+          <span class="label label-success pull-right" style="position:relative;" ng-if="message.data.received.year != 'n/a' && message.data.cancelled.year == 'n/a'">has Makibox</span><span class="label label-default pull-right" style="position:relative;" ng-if="message.data.cancelled.year != 'n/a'">Cancelled</span>
         </a>
-        <div class="well well-small">
-          
+        <div class="well well-small data_well">
+          <div class="cancelled_overlay" ng-show="message.data.cancelled.year != 'n/a'"></div>
           <table>
             <tr>
               <td class="muted">Makibox Type</td>
@@ -102,12 +103,19 @@
                 <span ng-if="message.data.tracking.year == 'n/a'">-</span>
               </td>
             </tr>
-            <tr>
+            <tr ng-hide="message.data.cancelled.year != 'n/a'">
               <td class="muted">Received</td>
               <td>&nbsp;&nbsp;</td>
               <td>
                 <span ng-if="message.data.received.year != 'n/a'">{{message.data.received.year}}-{{message.data.received.month}}-{{message.data.received.day}}</span>
                 <span ng-if="message.data.received.year == 'n/a'">-</span>
+              </td>
+            </tr>
+            <tr ng-show="message.data.cancelled.year != 'n/a'">
+              <td class="muted">Cancelled</td>
+              <td>&nbsp;&nbsp;</td>
+              <td>
+                <span style="color:red">{{message.data.cancelled.year}}-{{message.data.cancelled.month}}-{{message.data.cancelled.day}}</span>
               </td>
             </tr>
             <tr>
