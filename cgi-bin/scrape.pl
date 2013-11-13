@@ -132,7 +132,7 @@ $res = $extractData->scrape($data);
 my $server_res = $extractData->scrape($data);
 
 # prepare csv output
-@header = ('Name', 'Type', 'Ramen', 'Color', 'Country', 'Shipping', 'Order', 'Notice', 'Tracking', 'Received', 'LastEdited', 'Link', 'OriginalPost');
+@header = ('Name', 'Type', 'Ramen', 'Color', 'Country', 'Shipping', 'Order', 'Notice', 'Tracking', 'Received', 'Cancelled', 'LastEdited', 'Link', 'OriginalPost');
 my $csv_output = join(';', @header);
 $csv_output .= "\r\n";
 
@@ -452,7 +452,11 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 		$endstring = lc( 'updated' );
 		$end = index($string, $endstring);
 		if ( $end == -1 ) {
-			$end = length($string)-1;
+			$endstring = lc( '6.' );
+			$end = index($string, $endstring);
+			if ( $end == -1 ) {
+				$end = length($string)-1;
+			}
 		}
 	}
 	$txt = substr($string, $beg+$bl, $end-$beg-$bl);
@@ -508,6 +512,66 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	$res->{messages}[$i]->{data}->{received}->{day} = $d;
 
 	#$res->{messages}[$i]->{data}->{received}->{raw} = $txt;
+
+	#cancelation
+	$y = 'n/a';
+	$m = 'n/a';
+	$d = 'n/a';
+	$startstring = lc( 'Cancelled' );
+	$beg = index($string, $startstring);
+	if ( $beg > -1 ) {
+		$bl = length($startstring); 
+		$end = length($string)-1;
+		$txt = substr($string, $beg+$bl, $end-$beg-$bl);
+		if ( index($txt, 'on') > -1 ) {
+			$txt = substr($txt, index($txt, 'on')+2);
+		}
+		$txt =~ s/://;
+		$txt = trim($txt);
+		$divider = ' ';
+		if ( index($txt, '/') > -1 ) {
+			if ( index($txt, '/', index($txt, '/')+1) > -1 ) {
+				$divider = '/';
+			}
+		} elsif ( index($txt, '-') > -1 ) {
+			if ( index($txt, '-', index($txt, '-')+1) > -1 ) {
+				$divider = '-';
+			}
+		}
+		@dateparts = split($divider, $txt);
+		$day = '??';
+		$month = '??';
+		$year = '??';
+		if ( length($dateparts[0]) == 4 ) {
+			# assume yyyy-mm-dd
+			$year = int($dateparts[0]);
+			$day = int($dateparts[2]);
+			$month = &getDate($dateparts[1]);
+		} else {
+			# assume mm-dd-yyyy
+			if ( int($dateparts[0]) > 12 ) {
+				# assume dd-mm-yyyy
+				$year = int($dateparts[2]);
+				$day = int($dateparts[0]);
+				$month = &getDate($dateparts[1]);
+			} else {
+				$year = int($dateparts[2]);
+				$day = int($dateparts[1]);
+				$month = &getDate($dateparts[0]);
+			}
+		}	
+		if ( 	($year >= 2011) and ($year <= 2013)
+			and ($month > -1)
+			and ($day >= 1) and ($day <= 31) ) {
+			$y = $year;
+			$m = $month;
+			$d = $day;
+		}
+	}
+	
+	$res->{messages}[$i]->{data}->{cancelled}->{year} = $y;
+	$res->{messages}[$i]->{data}->{cancelled}->{month} = $m;
+	$res->{messages}[$i]->{data}->{cancelled}->{day} = $d;
 
 	# as of
 	$startstring = lc( 'as of' );
@@ -606,6 +670,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	my $noticeD = ifDateAvail( $res->{messages}[$i]->{data}->{notice} );
     my $trackingD = ifDateAvail( $res->{messages}[$i]->{data}->{tracking} );
     my $receivedD = ifDateAvail( $res->{messages}[$i]->{data}->{received} );
+    my $cancelledD = ifDateAvail( $res->{messages}[$i]->{data}->{cancelled} );
     my @csv_message = (	$res->{messages}[$i]->{poster},
 	    				$res->{messages}[$i]->{data}->{type},
 	    				$res->{messages}[$i]->{data}->{ramen},
@@ -616,6 +681,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	    				$noticeD,
 	    				$trackingD,
 	    				$receivedD,
+	    				$cancelledD,
 	    				$res->{messages}[$i]->{data}->{lastEdited},
 	    				$res->{messages}[$i]->{link},
 	    				$res->{messages}[$i]->{content}
