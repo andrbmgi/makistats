@@ -125,6 +125,45 @@ my $response = $ua->get($domain . 'forum/topic/2042');
 my $data = $response->decoded_content;
 my $res = $extractPages->scrape($data);
 
+# print $res->{links}[ $#{$res->{links}} ] . "\n\n";
+# print Dumper $res->{links};
+
+my $repeat = 1;
+
+do {
+	# save oldLastLink
+	my $oldLastLink = $res->{links}[ $#{$res->{links}} ];
+	# get last link
+	$response = $ua->get($domain . $res->{links}[ $#{$res->{links}} ]);
+	# extract pages
+	my $linkData = $response->decoded_content;
+	my $linkRes = $extractPages->scrape($linkData);
+	# add new pages to original list
+	my $ol = 0;
+	do {
+		for my $nl ( 0 .. $#{$linkRes->{links}} ) {
+			# print "is " . $res->{links}[$ol] . " eq " .$linkRes->{links}[$nl]. " ?\n";
+			if ( $res->{links}[$ol] eq $linkRes->{links}[$nl] ) {
+				# print "yup\n";
+				# link already in old list
+				splice(@{$linkRes->{links}}, $nl, 1); 	
+				last;
+			};
+		};
+		$ol++;
+	} while ($ol <= $#{$res->{links}});
+	push(@{$res->{links}}, @{$linkRes->{links}});
+	
+	# if last link eq oldLastLink exit else repeat
+	# print $res->{links}[ $#{$res->{links}} ]." eq ".$oldLastLink."?\n";
+	if ( $res->{links}[ $#{$res->{links}} ] eq $oldLastLink ) {
+		$repeat = 0;
+	};
+} while ($repeat == 1);
+# print Dumper $res->{links};
+# die;
+# print "\n\n\n";
+
 for my $i ( 0 .. $#{$res->{links}} ) {
 	$response = $ua->get($domain . $res->{links}[$i]);
 	$data .= $response->decoded_content;
