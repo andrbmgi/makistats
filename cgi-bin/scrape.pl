@@ -77,7 +77,8 @@ sub getDate {
 my $old_data;
 local $/;
 open (MYFILE, '<'.$path.'makiscrape_full.json');
-my $encoding = 'cp932';
+# my $encoding = 'cp932';
+my $encoding = 'utf8';
 my $unicode_json_text = decode( $encoding, <MYFILE> ); # UNICODE
 close (MYFILE);
 if ( defined $unicode_json_text && $unicode_json_text ne '' ) {
