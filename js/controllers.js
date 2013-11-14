@@ -179,6 +179,10 @@ app.controller('mainCtrl', ['$scope', '$rootScope', '$http', '$timeout', '$q',
               //messages.splice(key, 1);
               //console.log(message.data.notice);
               count++;
+            } else if ( (scope == 'notice') && ( (message.data.tracking.year != 'n/a') || (message.data.received.year != 'n/a') ) ) {
+              count++;
+            } else if ( (scope == 'tracking') && (message.data.received.year != 'n/a') ) {
+              count++;
             };
           };
       });
