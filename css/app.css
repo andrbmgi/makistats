@@ -84,17 +84,7 @@ body {
 .data_well {
 	position: relative;
 }
-.cancelled_overlay {
-    background-color: white;
-    filter:alpha(opacity=50); /* IE */
-    opacity: 0.5; /* Safari, Opera */
-    z-index: 20;
-    height: 100%;
-    width: 100%;
-    background-repeat:no-repeat;
-    background-position:center;
-    position:absolute;
-    top: 0px;
-    left: 0px;
-}
+.cancelled {
+    filter:alpha(opacity=30); /* IE */
+    opacity: 0.3; /* Safari, Opera */
 }
