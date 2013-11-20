@@ -262,7 +262,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 		$color = 'Yellow';
 	} elsif ( index($txt, 'bl') > -1 ) {
 		$color = 'Black';
-	} elsif (( index($txt, 'stainless') > -1 ) or ( index($txt, 'steel') > -1 )) {
+	} elsif (( index($txt, 'stainless') > -1 ) or ( index($txt, 'steel') > -1 ) or ( index($txt, 'ss') > -1 )) {
 		$color = 'Stainless Steel';
 	}
 	$res->{messages}[$i]->{data}->{color} = $color;
