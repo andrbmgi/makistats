@@ -495,7 +495,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 			$endstring = lc( '6.' );
 			$end = index($string, $endstring);
 			if ( $end == -1 ) {
-				$end = length($string)-1;
+				$end = length($string);
 			}
 		}
 	}
@@ -561,7 +561,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	$beg = index($string, $startstring);
 	if ( $beg > -1 ) {
 		$bl = length($startstring); 
-		$end = length($string)-1;
+		$end = length($string);
 		$txt = substr($string, $beg+$bl, $end-$beg-$bl);
 		if ( index($txt, 'on') > -1 ) {
 			$txt = substr($txt, index($txt, 'on')+2);
