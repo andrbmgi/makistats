@@ -557,7 +557,7 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	$y = 'n/a';
 	$m = 'n/a';
 	$d = 'n/a';
-	$startstring = lc( 'Cancelled' );
+	$startstring = lc( 'Cancel' );
 	$beg = index($string, $startstring);
 	if ( $beg > -1 ) {
 		$bl = length($startstring); 
