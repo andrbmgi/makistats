@@ -542,7 +542,8 @@ for my $i ( 1 .. $#{$res->{messages}} ) {
 	$d = 'n/a';
 	if ( 	($year >= 2011) and ($year <= 2013)
 		and ($month > -1)
-		and ($day >= 1) and ($day <= 31) ) {
+		and ($day >= 1) and ($day <= 31) 
+		and (index($string, 'cancel') == -1) ) {
 		$y = $year;
 		$m = $month;
 		$d = $day;
