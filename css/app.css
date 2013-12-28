@@ -6,9 +6,27 @@ body {
 .alert-container {
 	position: fixed;
 	right: 20px;
+	z-index: 1;
 }
 *.alert {
 	margin: 5px !important;
+}
+.thumbnail {
+  display: flex;
+  min-height: 17px;
+}
+.icon-share {
+  flex: none;
+}
+.label {
+  white-space: nowrap;
+  flex: none;
+}
+.original_poster {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: auto;
 }
 .spinner {
 	display: inline-block;

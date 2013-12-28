@@ -1,0 +1,6 @@
+AddType 'text/html; charset=UTF-8' .htm .html
+AddType 'application/json; charset=UTF-8' json
+<files *.json>
+SetOutputFilter DEFLATE
+</files>
+

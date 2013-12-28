@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>MakiStats</title>
-  <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/app.css">
   <script src="lib/angular/angular.js"></script>
   <script src="lib/angular/angular-sanitize.js"></script>
   <script src="lib/angular/modules/ng-csv.js"></script>
@@ -26,10 +26,10 @@
   </div> 
 
   <div class="container-fluid">
-    <p>
+    
       <h1>MakiStats <small>last scraped (UTC): {{data.scraped}}</small></h1>
       <a class="btn btn-primary btn-mini" href="makiscrape.csv?{{timetag}}">Export CSV</a>
-    </p>
+    
 
     <p>
     Datapoints: <span class="badge badge-important">{{data.messages.length}}</span><br>
@@ -57,7 +57,7 @@
     </form>
     <ul class="thumbnails">
       <li class="span4" ng-repeat="message in data.messages | filter:query | orderBy:searchFn">
-        <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> {{message.poster}}<span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a' && message.data.cancelled.year == 'n/a'">has notice</span>
+        <a class="thumbnail" href="http://www.makibox.com/{{message.link}}" alt="Link to original post."><i class="icon-share"></i> <span class="original_poster">{{message.poster}}</span><span class="label label-warning pull-right" style="position:relative;" ng-if="message.data.notice.year != 'n/a' && message.data.tracking.year == 'n/a' && message.data.received.year == 'n/a' && message.data.cancelled.year == 'n/a'">has notice</span>
           <span class="label label-info pull-right" style="position:relative;" ng-if="message.data.tracking.year != 'n/a' && message.data.received.year == 'n/a' && message.data.cancelled.year == 'n/a'">has tracking id</span>
           <span class="label label-success pull-right" style="position:relative;" ng-if="message.data.received.year != 'n/a' && message.data.cancelled.year == 'n/a'">has Makibox</span><span class="label label-default pull-right" style="position:relative;" ng-if="message.data.cancelled.year != 'n/a'">Cancelled</span>
         </a>
