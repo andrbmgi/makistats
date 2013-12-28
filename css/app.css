@@ -28,6 +28,12 @@ body {
   text-overflow: ellipsis;
   flex: auto;
 }
+.thumbnail > .original_poster {
+	margin-top: 2px;
+}
+.thumbnail > i {
+	margin-top: 1px;
+}
 .spinner {
 	display: inline-block;
 	opacity: 0;
