@@ -351,7 +351,7 @@ try {
 				$postDate = substr($postDate, 0, index($postDate, 'T'));
 			}
 			
-			my @dateparts = split('-', $res->{messages}[$i]->{lastEdited});
+			my @dateparts = split('-', $postDate);
 			$day = '-1';
 			$month = '-1';
 			$year = '-1';
