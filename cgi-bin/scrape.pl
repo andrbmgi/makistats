@@ -350,18 +350,19 @@ try {
 				$postDate = $dt->subtract(days => 1);
 				$postDate = substr($postDate, 0, index($postDate, 'T'));
 			}
-			$res->{messages}[$i]->{lastEdited} = $postDate;
+			
 			my @dateparts = split('-', $res->{messages}[$i]->{lastEdited});
 			$day = '-1';
 			$month = '-1';
 			$year = '-1';
-			if (isNumber($dateparts[0])) {
-				# yyyy-mm-dd
-				$year = int($dateparts[0]);						
-				$day = int($dateparts[2]);
-				$month = &getDate($dateparts[1]);
-			}
+			
+			# yyyy-mm-dd
+			$year = int($dateparts[0]);						
+			$day = int($dateparts[2]);
+			$month = &getDate($dateparts[1]);
+			
 			my freshLastEditedString = $year . '-' . $month . '-' . $day;
+			$res->{messages}[$i]->{lastEdited} = freshLastEditedString;
 			$server_res->{messages}[$i]->{lastEdited} = freshLastEditedString;
 		};
 		delete $res->{messages}[$i]->{postDate};
